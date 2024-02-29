@@ -48,69 +48,72 @@
 // export default RestaurantsNearYou;
 
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
+import { useRouter } from "next/navigation";
 
 export default function GoogleMaps() {
-    const [location, setLocation] = useState();
+    const [location, setLocation] = useState(null);
+    const router = useRouter();
+
     useEffect(() => {
         // Get user's location
         if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const { latitude, longitude } = position.coords;
-              setLocation({ latitude, longitude });
-            },
-            (error) => {
-                console.error('Error getting location:', error);
-            }
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setLocation({ latitude, longitude });
+                },
+                (error) => {
+                    console.error('Error getting location:', error);
+                }
             );
         }
     }, []);
+
     const mapRef = React.useRef(null);
 
-    
     useEffect(() => {
         const initializeMap = async () => {
             const loader = new Loader({
                 apiKey: 'AIzaSyAt2Y8iXPGXYeeL1RZRHFaaVZqLgvRwLIw',
-                version: 'quartely',
+                version: 'quarterly',
             });
-            const { Map } = await loader.importLibrary('maps');
-            
-            console.log(location);
+            const google = await loader.load();
+
             const locationInMap = {
-                lat: location?.latitude,
-                lng: location?.longitude,
+                lat: location.latitude,
+                lng: location.longitude,
             };
 
-            // MARKER
-            const { Marker } = (await loader.importLibrary(
-                'marker'
-            ));
-
-            const options = {
+            const map = new google.maps.Map(mapRef.current, {
                 center: locationInMap,
                 zoom: 15,
-                mapId: 'NEXT_MAPS_TUTS',
-            };
-
-            const map = new Map(mapRef.current, options);
-
-            // add the marker in the map
-            const marker = new Marker({
-                map: map,
-                position: locationInMap,
             });
 
-            
+            // Add marker to the map
+            new google.maps.Marker({
+                position: locationInMap,
+                map: map,
+            });
         };
 
-        if(location) {
+        if (location) {
             initializeMap();
         }
     }, [location]);
-    {!location && <div>Loading...</div>}
-    return <div className="h-[600px]" ref={mapRef} />;
+
+    return (
+        <div className="h-[600px]">
+            {location ? (
+                <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
+            ) : (
+                <div>Loading...</div>
+            )}
+
+<div className="mt-4 bg-blue-500 hover:bg-blue-700 text-white text-center mx-80 px-4 py-2 rounded">
+        <button onClick={() => router.back()}>Back</button>
+      </div>
+        </div>
+    );
 }
