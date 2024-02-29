@@ -104,16 +104,13 @@ export default function GoogleMaps() {
     }, [location]);
 
     return (
-        <div className="h-[600px]">
+        <div className="h-screen flex flex-col justify-center items-center">
             {location ? (
                 <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
             ) : (
                 <div>Loading...</div>
             )}
-
-<div className="mt-4 bg-blue-500 hover:bg-blue-700 text-white text-center mx-80 px-4 py-2 rounded">
-        <button onClick={() => router.back()}>Back</button>
-      </div>
+        <button className="my-6 bg-blue-500 hover:bg-blue-700 text-white text-center px-40 py-4 rounded" onClick={() => router.back()}>Back</button>
         </div>
     );
 }
